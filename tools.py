@@ -84,17 +84,16 @@ async def summarize(text):
 
 async def update_undergound_context(message, name=None):
     global undergound_chat_context
-    if str(message.chat.id) == UNDERGROUND_CHAT_ID:
-        if not name:
-            underground_chat_context.append(message.from_user.first_name + ": " + message.text)
-        else:
-            underground_chat_context.append(name + ": " + message)
-        if len(underground_chat_context) > 50:
-            del underground_chat_context[0]
+    if not name and str(message.chat.id) == UNDERGROUND_CHAT_ID:
+        underground_chat_context.append(message.from_user.first_name + ": " + message.text)
+    else:
+        underground_chat_context.append(name + ": " + message)
+    if len(underground_chat_context) > 50:
+        del underground_chat_context[0]
 
 async def formatted_reply(text):
-    reply = await reply(text)
-    formatted_response = await emoji_remover.rm(reply.lower())
+    answer = await reply(text)
+    formatted_response = await emoji_remover.rm(answer.lower())
     return formatted_response
 
 async def is_admin(message):
