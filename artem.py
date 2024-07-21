@@ -1,9 +1,19 @@
 from config import *
 import tools
-from keyboard import get_keyboard
+
+import asyncio
+import logging
+import sys
+
+from aiogram import Bot, F
+from aiogram.enums import ParseMode
+from aiogram.filters import CommandStart, Command, IS_MEMBER, IS_NOT_MEMBER, ChatMemberUpdatedFilter
+from aiogram.types import Message, ChatMemberUpdated, CallbackQuery, LinkPreviewOptions
+from aiogram.client.default import DefaultBotProperties
+from aiogram.utils.formatting import Text, ExpandableBlockQuote, Bold
+from aiogram.fsm.context import FSMContext
 
 dialog_mode = False
-
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
@@ -29,7 +39,6 @@ async def command_summarize_handler(message: Message) -> None:
     if str(message.chat.id) == UNDERGROUND_CHAT_ID:
         text_to_summarize = await tools.context_to_text()
         summary = await tools.summarize(text_to_summarize)
-        print(summary)
         await message.reply(summary)
 
 
@@ -37,7 +46,7 @@ async def command_summarize_handler(message: Message) -> None:
 async def command_dialog_handler(message: Message) -> None:
     global dialog_mode
 
-    if str(message.chat.id) == UNDERGROUND_CHAT_ID:
+    if str(message.chat.id) == UNDERGROUND_CHAT_ID and DIALOG_MODE_ON:
         dialog_mode = not dialog_mode
 
         await message.reply('Ура, теперь я полноценный участник беседы!' if dialog_mode else 'Всем пока!')
@@ -49,7 +58,10 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
 
     if message.chat.type == 'group' or message.chat.type == 'supergroup':
         if await tools.mentioned(message.text):
-            reply = await tools.formatted_reply(message.text, dialog_mode)
+            reply = await tools.formatted_reply(message.text,
+                                                message.quote.text,
+                                                message.from_user.first_name,
+                                                dialog_mode)
             await message.reply(reply)
             await tools.update_undergound_context(reply, "Артем Макаров")
 
@@ -60,14 +72,15 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
             await tools.refresh()
             await message.reply("Добавлено!")
 
-        if message.text == "!а":
+        if message.text == "!а" and message.text == "!a":
             question = message.reply_to_message.text
             reply = await tools.formatted_reply(question)
             await message.reply_to_message.reply(reply)
             await tools.update_undergound_context(reply, "Артем Макаров")
     else:
-        reply = await tools.reply(message.text)
-        await message.reply(reply, reply_markup=get_keyboard())
+        reply = await tools.formatted_reply(message.text)
+        await message.reply(reply)
+        await tools.update_undergound_context(reply, "Артем Макаров")
         await state.update_data({"text":message.text})
 
     await tools.update_undergound_context(message)
@@ -76,7 +89,9 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
 @dp.callback_query(F.data == "ASK")
 async def handle_answer_quality(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
     data = await state.get_data()
+
     text = data["text"]
+
     message = Text(
         Bold("Кураторы!\n\nАноним задает вопрос:\n"),
         ExpandableBlockQuote(text))
