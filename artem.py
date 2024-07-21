@@ -15,6 +15,7 @@ from aiogram.fsm.context import FSMContext
 
 dialog_mode = False
 
+
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
     await message.answer("Привет! Просто задай свой вопрос, а я попробую тебе помочь.")
@@ -74,7 +75,10 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
 
         if message.text == "!а" and message.text == "!a":
             question = message.reply_to_message.text
-            reply = await tools.formatted_reply(question)
+            author = message.reply_to_message.from_user.first_name
+
+            reply = await tools.formatted_reply(question, author=author)
+
             await message.reply_to_message.reply(reply)
             await tools.update_undergound_context(reply, "Артем Макаров")
     else:
