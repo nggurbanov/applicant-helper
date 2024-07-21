@@ -82,7 +82,7 @@ async def summarize(text):
 
     return summary
 
-async def update_undergound_context(message, name: None):
+async def update_undergound_context(message, name=None):
     global undergound_chat_context
     if str(message.chat.id) == UNDERGROUND_CHAT_ID:
         if not name:
@@ -100,3 +100,7 @@ async def formatted_reply(text):
 async def is_admin(message):
     if message.from_user.username in ADMINS:
         return True
+    
+async def context_to_text():
+    text_to_summarize = "\n".join(underground_chat_context)
+    return text_to_summarize

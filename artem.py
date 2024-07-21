@@ -22,7 +22,7 @@ async def on_user_join(event: ChatMemberUpdated, bot: Bot):
 @dp.message(Command("summarize"))
 async def command_summarize_handler(message: Message) -> None:
     if str(message.chat.id) == UNDERGROUND_CHAT_ID:
-        text_to_summarize = "\n".join(underground_chat_context)
+        text_to_summarize = await tools.context_to_text()
         summary = await tools.summarize(text_to_summarize)
         print(summary)
         await message.reply(summary)
