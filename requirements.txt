@@ -1,0 +1,6 @@
+aiogram==3.10.0
+APScheduler==3.10.4
+emoji==2.12.1
+gspread==6.1.2
+openai==1.35.14
+python-dotenv==1.0.1

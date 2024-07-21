@@ -1,0 +1,6 @@
+__pycache__
+helper
+.env
+openaitest.py
+.DS_Store
+gspread_handler/*
