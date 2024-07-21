@@ -1,7 +1,7 @@
 from config import *
 import tools
 from keyboard import get_keyboard
-# from aiogram.exceptions import TelegramNetworkError
+from aiogram.exceptions import TelegramNetworkError
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
@@ -71,9 +71,9 @@ async def handle_answer_quality(callback: CallbackQuery, bot: Bot, state: FSMCon
 async def idle_handler( state: FSMContext) -> None:
     await state.clear()
 
-# @dp.error(TelegramNetworkError)
-# async def on_network_error(error: TelegramNetworkError) -> None:
-#     await error.method.
+@dp.error(TelegramNetworkError)
+async def on_network_error(error: TelegramNetworkError) -> None:
+    await error.message.reply("Произошла ошибка. Попробуйте еще раз.")
 
 async def main() -> None:
     bot = Bot(TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
