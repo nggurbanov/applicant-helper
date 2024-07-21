@@ -49,7 +49,7 @@ pip install -r requirements.txt
 BOT_TOKEN=<ТОКЕН ВАШЕГО ТЕЛЕГРАМ БОТА (можно получить у @botfather)>
 OPENAI_API_KEY=<ВАШ АПИ-КЛЮЧ ДЛЯ OPENAI>
 ```
-5. В папке gspread_handler нужно создать два файла:
+5. Создайте папку gspread_handler, в ней нужно создать два файла:
    - url.txt - ссылка на гугл таблицу (должно быть открыто редактирование)
    -  key.json - ваш сервисный ключ для работы с gspread. 
       Подробнее: https://docs.gspread.org/en/v6.1.0/oauth2.html#service-account
