@@ -19,7 +19,8 @@ async def generate_short(message):
         return response_text
 
 async def find_question(message):   
-    messages = [{"role":"system", "content":SEARCH_PROMPT},{"role":"user", "content":message}]
+    current_search_prompt = SEARCH_PROMPT.format(enumerated_questions=enumerated_questions)
+    messages = [{"role":"system", "content":current_search_prompt},{"role":"user", "content":message}]
 
     chat_response = openai_client.chat.completions.create(
             model="gpt-4o-mini",
