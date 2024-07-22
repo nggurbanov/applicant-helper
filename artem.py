@@ -61,7 +61,7 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
     if message.chat.type == 'group' or message.chat.type == 'supergroup':
         if await tools.mentioned(message.text):
             reply = await tools.formatted_reply(message.text,
-                                                message.quote.text,
+                                                message.quote.text if QUOTE_CONTEXT else '',
                                                 message.from_user.first_name,
                                                 dialog_mode)
             await message.reply(reply)
