@@ -1,6 +1,7 @@
+import emoji_remover
+
 from config import *
 from promt_generator import message_history_promt, quote_promt, message_promt
-import emoji_remover
 
 underground_chat_context = []
 

@@ -1,6 +1,6 @@
-from aiogram import Bot, Dispatcher, F
+from aiogram import Dispatcher
 
-from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.state import State
 from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 import os
 import json
