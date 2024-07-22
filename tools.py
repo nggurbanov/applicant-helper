@@ -67,8 +67,7 @@ async def refresh():
 
 
 async def mentioned(text):
-    if any(mention in text.lower() for mention in MENTIONS):
-        return True
+    return any(mention in text.lower() for mention in MENTIONS)
 
 
 async def reply(text, quote='', author='user', dialog_mode=False):

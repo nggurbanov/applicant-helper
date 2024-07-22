@@ -12,6 +12,7 @@ from aiogram.types import Message, ChatMemberUpdated, CallbackQuery, LinkPreview
 from aiogram.client.default import DefaultBotProperties
 from aiogram.utils.formatting import Text, ExpandableBlockQuote, Bold
 from aiogram.fsm.context import FSMContext
+from aiogram.exceptions import TelegramNetworkError
 
 dialog_mode = False
 
@@ -113,9 +114,9 @@ async def idle_handler(state: FSMContext) -> None:
     await state.clear()
 
 
-# @dp.error(TelegramNetworkError)
-# async def on_network_error(error: TelegramNetworkError) -> None:
-#     await error.method.
+@dp.error(TelegramNetworkError)
+async def on_network_error(error: TelegramNetworkError) -> None:
+    await error.message.reply("Произошла ошибка. Попробуйте еще раз.")
 
 
 async def main() -> None:
