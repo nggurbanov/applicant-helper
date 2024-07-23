@@ -1,5 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+
 def get_keyboard() -> InlineKeyboardMarkup:
     buttons = [
         [

@@ -1,2 +1,2 @@
-Conversation history:
+Предыдущие сообщения диалога:
 {replies}

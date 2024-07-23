@@ -73,8 +73,7 @@ async def mentioned(text: str) -> bool:
 
 
 async def reply(text: str, replies: list = None, author='user', dialog_mode: bool = False) -> str:
-    # number = int(await find_question(text))
-    number = 0
+    number = int(await find_question(text))
 
     if number == 0:
         response = await generate_short(text, replies, author) if not dialog_mode else await generate_dialog(text)

@@ -76,7 +76,7 @@ async def command_summarize_handler(message: Message) -> None:
 async def command_dialog_handler(message: Message) -> None:
     global dialog_mode
 
-    if str(message.chat.id) == UNDERGROUND_CHAT_ID and DIALOG_MODE_ON:
+    if message.chat.id == UNDERGROUND_CHAT_ID and DIALOG_MODE_ON:
         dialog_mode = not dialog_mode
 
         await message.reply('Ура, теперь я полноценный участник беседы!' if dialog_mode else 'Всем пока!')
@@ -86,7 +86,7 @@ async def command_dialog_handler(message: Message) -> None:
 async def chat_message_handler(message: Message, state: FSMContext) -> None:
     global dialog_mode
 
-    if message.chat.id != UNDERGROUND_CHAT_ID:
+    if message.chat.id != UNDERGROUND_CHAT_ID and CHECK_CHAT_ID:
         return
 
     await tools.update_underground_context(message.text, name=message.from_user.first_name)

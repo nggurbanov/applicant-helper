@@ -23,21 +23,24 @@ DIALOG_MODE_ON = False
 REPLIES_CONTEXT = True
 REPLY_ON_REPLY = True
 
+CHECK_CHAT_ID = False
+
 OPENAI = False
 
+# load some config data
 with open("./underground_info/group_chat.json", encoding='utf-8-sig') as file:
     underground_data = json.load(file)
 
 UNDERGROUND_CHAT_ID = int(underground_data.get("CHAT_ID"))
 UNDERGROUND_CHAT_INVITE = underground_data.get("CHAT_INVITE")
 
-# load promts
 with open("./underground_info/admins.json") as file:
     ADMINS = json.load(file)
 
 with open("./gspread_handler/url.txt") as file:
     SHEET_URL = file.read().strip()
 
+# load prompts
 with open("./prompts/non-found.txt", encoding='utf-8-sig') as file:
     NON_FOUND_PROMPT = file.read()
 
