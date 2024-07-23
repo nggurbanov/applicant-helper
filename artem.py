@@ -85,7 +85,7 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
     global dialog_mode
 
     if message.chat.type == 'group' or message.chat.type == 'supergroup':
-        if await tools.mentioned(message.text):
+        if await tools.mentioned(message.text) or (message.reply_to_message.from_user.is_bot and REPLY_ON_REPLY):
             reply = await tools.formatted_reply(message.text,
                                                 get_reply_history(message) if REPLIES_CONTEXT else [],
                                                 message.from_user.first_name,

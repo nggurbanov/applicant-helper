@@ -21,6 +21,7 @@ ANSWER_MODEL = os.getenv("ANSWER_MODEL")
 # flags
 DIALOG_MODE_ON = False
 REPLIES_CONTEXT = False
+REPLY_ON_REPLY = False
 
 with open("./underground_info/group_chat.json") as file:
     underground_data = json.load(file)
