@@ -118,8 +118,8 @@ async def summarize(text: str) -> str:
     return summary
 
 
-async def update_undergound_context(message: Message, name: str = None) -> None:
-    global undergound_chat_context
+async def update_underground_context(message: Message, name: str = None) -> None:
+    global underground_chat_context
 
     if str(message.chat.id) == UNDERGROUND_CHAT_ID:
         if not name:

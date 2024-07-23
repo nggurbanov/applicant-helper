@@ -91,7 +91,7 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
                                                 message.from_user.first_name,
                                                 dialog_mode)
             await message.reply(reply)
-            await tools.update_undergound_context(reply, "Артем Макаров")
+            await tools.update_underground_context(reply, "Артем Макаров")
 
         if "&&" in message.text and await is_admin(message):
             keywords = message.text.replace("&& ", "").replace("&&", "")
@@ -108,14 +108,14 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
             reply = await tools.formatted_reply(question, replies=[quote], author=author)
 
             await message.reply_to_message.reply(reply)
-            await tools.update_undergound_context(reply, "Артем Макаров")
+            await tools.update_underground_context(reply, "Артем Макаров")
     else:
         reply = await tools.formatted_reply(message.text)
         await message.reply(reply)
-        await tools.update_undergound_context(reply, "Артем Макаров")
+        await tools.update_underground_context(reply, "Артем Макаров")
         await state.update_data({"text":message.text})
 
-    await tools.update_undergound_context(message)
+    await tools.update_underground_context(message)
 
 
 @dp.callback_query(F.data == "ASK")

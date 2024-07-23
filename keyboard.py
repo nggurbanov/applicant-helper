@@ -9,5 +9,7 @@ def get_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton(text="Анонимно спросить кураторов.", callback_data="ASK"),
         ]
     ]
+
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+
     return keyboard
