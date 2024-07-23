@@ -1,6 +1,6 @@
 from aiogram import Dispatcher
 
-from aiogram.fsm.state import State
+# from aiogram.fsm.state import State
 from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 import os
 import json
@@ -20,13 +20,15 @@ ANSWER_MODEL = os.getenv("ANSWER_MODEL")
 
 # flags
 DIALOG_MODE_ON = False
-REPLIES_CONTEXT = False
-REPLY_ON_REPLY = False
+REPLIES_CONTEXT = True
+REPLY_ON_REPLY = True
 
-with open("./underground_info/group_chat.json") as file:
+OPENAI = False
+
+with open("./underground_info/group_chat.json", encoding='utf-8-sig') as file:
     underground_data = json.load(file)
 
-UNDERGROUND_CHAT_ID = underground_data.get("CHAT_ID")
+UNDERGROUND_CHAT_ID = int(underground_data.get("CHAT_ID"))
 UNDERGROUND_CHAT_INVITE = underground_data.get("CHAT_INVITE")
 
 # load promts
@@ -36,22 +38,22 @@ with open("./underground_info/admins.json") as file:
 with open("./gspread_handler/url.txt") as file:
     SHEET_URL = file.read().strip()
 
-with open("./prompts/non-found.txt") as file:
+with open("./prompts/non-found.txt", encoding='utf-8-sig') as file:
     NON_FOUND_PROMPT = file.read()
 
-with open("./prompts/search.txt") as file:
+with open("./prompts/search.txt", encoding='utf-8-sig') as file:
     SEARCH_PROMPT = file.read()
 
-with open("./prompts/summarize.txt") as file:
+with open("./prompts/summarize.txt", encoding='utf-8-sig') as file:
     SUMMARIZE_PROMPT = file.read()
 
-with open("./prompts/history.txt") as file:
+with open("./prompts/history.txt", encoding='utf-8-sig') as file:
     HISTORY_PROMPT = file.read()
 
-with open("prompts/replies.txt") as file:
+with open("prompts/replies.txt", encoding='utf-8-sig') as file:
     REPLIES_PROMPT = file.read()
 
-with open("./prompts/message.txt") as file:
+with open("./prompts/message.txt", encoding='utf-8-sig') as file:
     MESSAGE_PROMPT = file.read()
 
 # some google worksheet
@@ -62,7 +64,7 @@ spreadsheet = gc.open_by_url(SHEET_URL)
 worksheet = spreadsheet.sheet1
 
 # load mentions
-with open("./underground_info/mentions.json", "r") as file:
+with open("./underground_info/mentions.json", "r", encoding='utf-8-sig') as file:
     MENTIONS = json.load(file)
 
 # init ai clients
@@ -70,7 +72,7 @@ deepinfra_client = openai.OpenAI(
     api_key=DEEPINFRA_API_KEY,
     base_url="https://api.deepinfra.com/v1/openai")
 
-openai_client = openai.OpenAI(api_key=OPENAI_API_KEY)
+ai_client = openai.OpenAI(api_key=OPENAI_API_KEY) if OPENAI else deepinfra_client
 
 # save token
 TOKEN = os.getenv("BOT_TOKEN")

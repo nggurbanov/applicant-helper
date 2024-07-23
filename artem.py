@@ -38,7 +38,7 @@ def get_reply_history(message: Message, length: int = 25) -> list[str]:
 
         count += 1
 
-    return history
+    return history[::-1]
 
 
 # aiogram event handlers
@@ -64,9 +64,11 @@ async def on_user_join(event: ChatMemberUpdated, bot: Bot):
 
 @dp.message(Command("summarize"))
 async def command_summarize_handler(message: Message) -> None:
-    if str(message.chat.id) == UNDERGROUND_CHAT_ID:
+    if message.chat.id == UNDERGROUND_CHAT_ID:
         text_to_summarize = await tools.context_to_text()
+
         summary = await tools.summarize(text_to_summarize)
+
         await message.reply(summary)
 
 
@@ -84,8 +86,17 @@ async def command_dialog_handler(message: Message) -> None:
 async def chat_message_handler(message: Message, state: FSMContext) -> None:
     global dialog_mode
 
+    if message.chat.id != UNDERGROUND_CHAT_ID:
+        return
+
+    await tools.update_underground_context(message.text, name=message.from_user.first_name)
+
+    is_answer = (message.reply_to_message is not None
+                 and message.reply_to_message.from_user.is_bot
+                 and REPLY_ON_REPLY)
+
     if message.chat.type == 'group' or message.chat.type == 'supergroup':
-        if await tools.mentioned(message.text) or (message.reply_to_message.from_user.is_bot and REPLY_ON_REPLY):
+        if await tools.mentioned(message.text) or is_answer:
             reply = await tools.formatted_reply(message.text,
                                                 get_reply_history(message) if REPLIES_CONTEXT else [],
                                                 message.from_user.first_name,
@@ -111,11 +122,10 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
             await tools.update_underground_context(reply, "Артем Макаров")
     else:
         reply = await tools.formatted_reply(message.text)
+
         await message.reply(reply)
         await tools.update_underground_context(reply, "Артем Макаров")
         await state.update_data({"text":message.text})
-
-    await tools.update_underground_context(message)
 
 
 @dp.callback_query(F.data == "ASK")
@@ -151,7 +161,7 @@ async def on_network_error(error: TelegramNetworkError) -> None:
 async def main() -> None:
     bot = Bot(TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     await tools.refresh()
-    await dp.start_polling(bot, polling_timeout=100, )
+    await dp.start_polling(bot, polling_timeout=100)
 
 
 if __name__ == "__main__":

@@ -3,8 +3,6 @@ import emoji_remover
 from config import *
 from promt_generator import message_history_promt, replies_promt, message_promt
 
-from aiogram.types import Message
-
 underground_chat_context = []
 
 
@@ -15,11 +13,11 @@ async def add_new_question(question: str, answer: str) -> None:
 async def generate_short(message: str, replies: list, author: str = 'user') -> str:
     messages = [{"role":"system", "content":NON_FOUND_PROMPT},
                 {"role":"system", "content":replies_promt('\n'.join(replies) if replies is not None and
-                                                                                len(replies) == 0 else 'nothing')},
+                                                                                len(replies) > 0 else 'nothing')},
                 {"role":"user", "content":message_promt(message, author)}]
 
-    chat_response = openai_client.chat.completions.create(
-        model="gpt-4o-mini",
+    chat_response = ai_client.chat.completions.create(
+        model=ANSWER_MODEL,
         messages=messages,
         temperature=0.5
     )
@@ -33,8 +31,8 @@ async def generate_dialog(message: str, author: str = 'user') -> str:
                 {"role":"system", "content":message_history_promt(context_to_text())},
                 {"role":"user", "content":message_promt(message, author)}]
 
-    chat_response = openai_client.chat.completions.create(
-        model="gpt-4o-mini",
+    chat_response = ai_client.chat.completions.create(
+        model=ANSWER_MODEL,
         messages=messages,
         temperature=0.5
     )
@@ -48,8 +46,8 @@ async def find_question(message: str) -> str:
     messages = [{"role":"system", "content":current_search_prompt},
                 {"role":"user", "content":message}]
 
-    chat_response = openai_client.chat.completions.create(
-        model="gpt-4o-mini",
+    chat_response = ai_client.chat.completions.create(
+        model=SEARCH_MODEL,
         messages=messages,
         temperature=0
     )
@@ -75,7 +73,8 @@ async def mentioned(text: str) -> bool:
 
 
 async def reply(text: str, replies: list = None, author='user', dialog_mode: bool = False) -> str:
-    number = int(await find_question(text))
+    # number = int(await find_question(text))
+    number = 0
 
     if number == 0:
         response = await generate_short(text, replies, author) if not dialog_mode else await generate_dialog(text)
@@ -108,8 +107,8 @@ async def deepinfra_test(message: str) -> str:
 async def summarize(text: str) -> str:
     messages = [{"role":"system", "content":SUMMARIZE_PROMPT}, {"role":"user", "content":text}]
 
-    chat_response = openai_client.chat.completions.create(
-        model="gpt-4o-mini",
+    chat_response = ai_client.chat.completions.create(
+        model=ANSWER_MODEL,
         messages=messages,
         temperature=0.5
     )
@@ -118,17 +117,13 @@ async def summarize(text: str) -> str:
     return summary
 
 
-async def update_underground_context(message: Message, name: str = None) -> None:
+async def update_underground_context(message: str, name: str = None) -> None:
     global underground_chat_context
 
-    if str(message.chat.id) == UNDERGROUND_CHAT_ID:
-        if not name:
-            underground_chat_context.append(message.from_user.first_name + ": " + message.text)
-        else:
-            underground_chat_context.append(name + ": " + message)
+    underground_chat_context.append(name + ": " + message)
 
-        if len(underground_chat_context) > 50:
-            del underground_chat_context[0]
+    if len(underground_chat_context) > 50:
+        del underground_chat_context[0]
 
 
 async def formatted_reply(text: str, replies: list = None, author: str = 'user', dialog_mode: bool = False):

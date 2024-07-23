@@ -3,7 +3,7 @@ from config import HISTORY_PROMPT, REPLIES_PROMPT, MESSAGE_PROMPT
 
 def promt_render(promt, **kwargs) -> str:
     for key, value in kwargs.items():
-        promt = promt.replace(f'{key}', value)
+        promt = promt.replace('{' + key + '}', value)
 
     return promt
 
