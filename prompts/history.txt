@@ -1,2 +1,8 @@
-Message history:
+Remember, you are member in big chat, where each member discuss different topics.
+
+Some messages may be related to your topic of the conversation and question.
+
+DON'T LOSE YOUR TOPIC OF CONVERSATION!
+
+Conversation history:
 {history}

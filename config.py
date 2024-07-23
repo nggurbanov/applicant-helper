@@ -20,7 +20,7 @@ ANSWER_MODEL = os.getenv("ANSWER_MODEL")
 
 # flags
 DIALOG_MODE_ON = False
-QUOTE_CONTEXT = False
+REPLIES_CONTEXT = False
 
 with open("./underground_info/group_chat.json") as file:
     underground_data = json.load(file)
@@ -46,8 +46,8 @@ with open("./prompts/summarize.txt") as file:
 with open("./prompts/history.txt") as file:
     HISTORY_PROMPT = file.read()
 
-with open("./prompts/quote.txt") as file:
-    QUOTE_PROMPT = file.read()
+with open("prompts/replies.txt") as file:
+    REPLIES_PROMPT = file.read()
 
 with open("./prompts/message.txt") as file:
     MESSAGE_PROMPT = file.read()
@@ -73,4 +73,4 @@ TOKEN = os.getenv("BOT_TOKEN")
 dp = Dispatcher()
 dp.callback_query.middleware(CallbackAnswerMiddleware(pre=True))
 
-text = State()
+# text = State()

@@ -1,4 +1,4 @@
-from config import HISTORY_PROMPT, QUOTE_PROMPT, MESSAGE_PROMPT
+from config import HISTORY_PROMPT, REPLIES_PROMPT, MESSAGE_PROMPT
 
 
 def promt_render(promt, **kwargs) -> str:
@@ -12,8 +12,8 @@ def message_history_promt(history: str) -> str:
     return promt_render(HISTORY_PROMPT, history=history)
 
 
-def quote_promt(text: str) -> str:
-    return promt_render(QUOTE_PROMPT, quote=text)
+def replies_promt(text: str) -> str:
+    return promt_render(REPLIES_PROMPT, replies=text)
 
 
 def message_promt(text: str, author: str = 'user') -> str:

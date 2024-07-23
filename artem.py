@@ -14,8 +14,34 @@ from aiogram.utils.formatting import Text, ExpandableBlockQuote, Bold
 from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramNetworkError
 
+# bot global vars
+
 dialog_mode = False
 
+
+# aiogram tools
+
+async def is_admin(message: Message) -> bool:
+    return message.from_user.username in ADMINS
+
+
+def get_reply_history(message: Message, length: int = 25) -> list[str]:
+    count = 0
+    history = []
+
+    current_message = message.reply_to_message
+
+    while current_message is not None and count < length:
+        history.append(f'{current_message.from_user.first_name}: {current_message.text}')
+
+        current_message = current_message.reply_to_message
+
+        count += 1
+
+    return history
+
+
+# aiogram event handlers
 
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
@@ -61,13 +87,13 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
     if message.chat.type == 'group' or message.chat.type == 'supergroup':
         if await tools.mentioned(message.text):
             reply = await tools.formatted_reply(message.text,
-                                                message.quote.text if QUOTE_CONTEXT else '',
+                                                get_reply_history(message) if REPLIES_CONTEXT else [],
                                                 message.from_user.first_name,
                                                 dialog_mode)
             await message.reply(reply)
             await tools.update_undergound_context(reply, "Артем Макаров")
 
-        if "&&" in message.text and await tools.is_admin(message):
+        if "&&" in message.text and await is_admin(message):
             keywords = message.text.replace("&& ", "").replace("&&", "")
             answer = message.reply_to_message.text
             await tools.add_new_question(keywords, answer)
@@ -77,8 +103,9 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
         if message.text == "!а" and message.text == "!a":
             question = message.reply_to_message.text
             author = message.reply_to_message.from_user.first_name
+            quote = message.reply_to_message.quote.text
 
-            reply = await tools.formatted_reply(question, author=author)
+            reply = await tools.formatted_reply(question, replies=[quote], author=author)
 
             await message.reply_to_message.reply(reply)
             await tools.update_undergound_context(reply, "Артем Макаров")
@@ -116,7 +143,9 @@ async def idle_handler(state: FSMContext) -> None:
 
 @dp.error(TelegramNetworkError)
 async def on_network_error(error: TelegramNetworkError) -> None:
-    await error.message.reply("Произошла ошибка. Попробуйте еще раз.")
+    # await error.message.reply("Произошла ошибка. Попробуйте еще раз.") # i think it is not work
+
+    print(error.message)
 
 
 async def main() -> None:
