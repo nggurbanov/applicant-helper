@@ -1,6 +1,5 @@
 from config import *
 import tools
-import keyboard
 
 import asyncio
 import logging
@@ -15,6 +14,7 @@ from aiogram.utils.formatting import Text, ExpandableBlockQuote, Bold
 from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramNetworkError
 
+from keyboard import get_keyboard
 
 # bot global vars
 dialog_mode = False
@@ -26,21 +26,20 @@ async def is_admin(message: Message) -> bool:
     return message.from_user.username in ADMINS
 
 
-def get_reply_history(message: Message, length: int = 25) -> list[str]:
-    count = 0
-    history = []
+async def is_underground_chat(message: Message):
+    return message.chat.id == UNDERGROUND_CHAT_ID
 
-    current_message = message.reply_to_message
 
-    while current_message is not None and count < length:
-        print(current_message.reply_to_message.text)
+def get_reply(message: Message, quote: bool = False) -> str:
+    reply = message.reply_to_message
 
-        history.append(f'{current_message.from_user.first_name}: {current_message.text}')
+    if reply is None or not REPLY_CONTEXT:
+        return None, None
 
-        current_message = current_message.reply_to_message
+    text = reply.text if not quote else reply.quote.text
+    name = reply.from_user.first_name if not reply.from_user.is_bot else 'Артём Макаров'
 
-        count += 1
-    return history[:-1]
+    return text, name
 
 
 # aiogram event handlers
@@ -66,7 +65,7 @@ async def on_user_join(event: ChatMemberUpdated, bot: Bot):
 
 @dp.message(Command("summarize"))
 async def command_summarize_handler(message: Message) -> None:
-    if message.chat.id == UNDERGROUND_CHAT_ID:
+    if is_underground_chat(message):
         text_to_summarize = await tools.context_to_text()
 
         summary = await tools.summarize(text_to_summarize)
@@ -78,7 +77,7 @@ async def command_summarize_handler(message: Message) -> None:
 async def command_dialog_handler(message: Message) -> None:
     global dialog_mode
 
-    if message.chat.id == UNDERGROUND_CHAT_ID and DIALOG_MODE_ON:
+    if is_underground_chat(message) and DIALOG_MODE_ON:
         dialog_mode = not dialog_mode
 
         await message.reply('Ура, теперь я полноценный участник беседы!' if dialog_mode else 'Всем пока!')
@@ -92,17 +91,30 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
                  and message.reply_to_message.from_user.is_bot
                  and REPLY_ON_REPLY)
 
-    if (message.chat.type == 'group' or message.chat.type == 'supergroup'):
-        if message.chat.id == UNDERGROUND_CHAT_ID:
+    if message.chat.type == 'group' or message.chat.type == 'supergroup':
+        if is_underground_chat(message):
             await tools.update_underground_context(message.text, name=message.from_user.first_name)
 
         if await tools.mentioned(message.text) or is_answer:
             reply = await tools.formatted_reply(message.text,
-                                                get_reply_history(message) if REPLIES_CONTEXT else [],
                                                 message.from_user.first_name,
+                                                *get_reply(message),
                                                 dialog_mode)
+
             await message.reply(reply)
-            if message.chat.id == UNDERGROUND_CHAT_ID:
+
+            if is_underground_chat(message):
+                await tools.update_underground_context(reply, "Артем Макаров")
+
+        if message.text == "!а" or message.text == "!a":
+            question = message.reply_to_message.text
+            author = message.reply_to_message.from_user.first_name
+
+            reply = await tools.formatted_reply(question, author=author)
+
+            await message.reply_to_message.reply(reply)
+
+            if is_underground_chat(message):
                 await tools.update_underground_context(reply, "Артем Макаров")
 
         if "&&" in message.text and await is_admin(message):
@@ -112,21 +124,10 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
             await tools.refresh()
             await message.reply("Добавлено!")
 
-        if message.text == "!а" or message.text == "!a":
-            question = message.reply_to_message.text
-            author = message.reply_to_message.from_user.first_name
-
-            reply = await tools.formatted_reply(question,
-                                                get_reply_history(message) if REPLIES_CONTEXT else [], 
-                                                author=author)
-
-            await message.reply_to_message.reply(reply)
-            if message.chat.id == UNDERGROUND_CHAT_ID:
-                await tools.update_underground_context(reply, "Артем Макаров")
-    else:
+    elif message.chat.type == "private":
         reply = await tools.formatted_reply(message.text)
 
-        await message.reply(reply, reply_markup=keyboard.get_keyboard())
+        await message.reply(reply, reply_markup=get_keyboard())
         await state.update_data({"text_state":message.text})
 
 
@@ -155,9 +156,7 @@ async def idle_handler(state: FSMContext) -> None:
 
 @dp.error(TelegramNetworkError)
 async def on_network_error(error: TelegramNetworkError) -> None:
-    # await error.message.reply("Произошла ошибка. Попробуйте еще раз.") # i think it is not work
-
-    print(error.message)
+    logging.error(error.message)
 
 
 async def main() -> None:

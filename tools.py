@@ -1,7 +1,7 @@
 import emoji_remover
 
 from config import *
-from prompt_generator import message_history_prompt, replies_prompt, message_prompt
+from prompt_generator import message_history_prompt, reply_prompt, message_prompt
 
 underground_chat_context = []
 
@@ -10,12 +10,12 @@ async def add_new_question(question: str, answer: str) -> None:
     worksheet.append_row([question, answer], value_input_option="RAW")
 
 
-async def generate_short(message: str, replies: list = None, author: str = 'user') -> str:
+async def generate_short(message: str, author: str = 'user', reply_text: str = None, reply_author: str = 'user') -> str:
     messages = [{"role":"system", "content":NON_FOUND_PROMPT},
                 {"role":"user", "content":message_prompt(message, author)}]
 
-    if replies is not None and len(replies) > 0:
-        messages.insert(1, {"role":"system", "content":replies_prompt('\n'.join(replies))})
+    if reply_text is not None:
+        messages.insert(1, {"role":"system", "content":reply_prompt(reply_text, reply_author)})
 
     chat_response = ai_client.chat.completions.create(
         model=ANSWER_MODEL,
@@ -73,11 +73,12 @@ async def mentioned(text: str) -> bool:
     return any(mention in text.lower() for mention in MENTIONS)
 
 
-async def reply(text: str, replies: list = None, author='user', dialog_mode: bool = False) -> str:
+async def reply(text: str, author: str = 'user', reply_text: str = None, reply_author: str = None,
+                dialog_mode: bool = False) -> str:
     number = int(await find_question(text))
 
     if number == 0:
-        response = await generate_short(text, replies, author) if not dialog_mode \
+        response = await generate_short(text, author, reply_text, reply_author) if not dialog_mode \
             else await generate_dialog(text, author)
     else:
         response = find_answer(number)
@@ -90,19 +91,6 @@ async def remove_names(input_string: str) -> str:
         input_string = input_string.replace(mention, '')
 
     return input_string
-
-
-async def deepinfra_test(message: str) -> str:
-    messages = [{"role":"system", "content":NON_FOUND_PROMPT}, {"role":"user", "content":message}]
-
-    chat_response = deepinfra_client.chat.completions.create(
-        model=ANSWER_MODEL,
-        messages=messages,
-        temperature=0
-    )
-    response_text = chat_response.choices[0].message.content
-
-    return response_text
 
 
 async def summarize(text: str) -> str:
@@ -127,9 +115,10 @@ async def update_underground_context(message: str, name: str = None) -> None:
         del underground_chat_context[0]
 
 
-async def formatted_reply(text: str, replies: list = None, author: str = 'user', dialog_mode: bool = False):
-    reply_msg = await reply(text, replies, author, dialog_mode)
-    formatted_response = await emoji_remover.rm(reply_msg.lower())
+async def formatted_reply(text: str, author: str = 'user', reply_text: str = None, reply_author: str = None,
+                          dialog_mode: bool = False) -> object:
+    reply_text = await reply(text, author, reply_text, reply_author, dialog_mode)
+    formatted_response = await emoji_remover.rm(reply_text.lower())
 
     return formatted_response
 
