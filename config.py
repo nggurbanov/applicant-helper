@@ -14,8 +14,6 @@ DIALOG_MODE_ON = False
 REPLIES_CONTEXT = True
 REPLY_ON_REPLY = True
 
-CHECK_CHAT_ID = False
-
 OPENAI = False
 
 load_dotenv()

@@ -90,8 +90,9 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
                  and REPLY_ON_REPLY)
 
     if (message.chat.type == 'group' or message.chat.type == 'supergroup') \
-            and message.chat.id != UNDERGROUND_CHAT_ID \
-            and CHECK_CHAT_ID:
+            and message.chat.id == UNDERGROUND_CHAT_ID:
+
+        await tools.update_underground_context(message.text, name=message.from_user.first_name)
 
         if await tools.mentioned(message.text) or is_answer:
             reply = await tools.formatted_reply(message.text,
@@ -117,9 +118,6 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
 
             await message.reply_to_message.reply(reply)
             await tools.update_underground_context(reply, "Артем Макаров")
-
-        await tools.update_underground_context(message.text, name=message.from_user.first_name)
-
     else:
         reply = await tools.formatted_reply(message.text)
 
