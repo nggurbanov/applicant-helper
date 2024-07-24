@@ -15,7 +15,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramNetworkError
 
 # bot global vars
-
 dialog_mode = False
 
 
@@ -126,14 +125,14 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
 
         await message.reply(reply)
         # await tools.update_underground_context(reply, "Артем Макаров")
-        await state.update_data({"text":message.text})
+        await state.update_data({"text_state":message.text})
 
 
 @dp.callback_query(F.data == "ASK")
 async def handle_answer_quality(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
     data = await state.get_data()
 
-    text = data["text"]
+    text = data["text_state"]
 
     message = Text(
         Bold("Кураторы!\n\nАноним задает вопрос:\n"),

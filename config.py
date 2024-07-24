@@ -1,6 +1,6 @@
 from aiogram import Dispatcher
 
-# from aiogram.fsm.state import State
+from aiogram.fsm.state import State
 from aiogram.utils.callback_answer import CallbackAnswerMiddleware
 import os
 import json
@@ -84,4 +84,4 @@ TOKEN = os.getenv("BOT_TOKEN")
 dp = Dispatcher()
 dp.callback_query.middleware(CallbackAnswerMiddleware(pre=True))
 
-# text = State()
+text_state = State()
