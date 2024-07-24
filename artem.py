@@ -26,6 +26,10 @@ async def is_admin(message: Message) -> bool:
     return message.from_user.username in ADMINS
 
 
+async def is_underground_chat(message: Message):
+    return is_underground_chat(message)
+
+
 def get_reply(message: Message, quote: bool = False) -> str:
     reply = message.reply_to_message
 
@@ -61,7 +65,7 @@ async def on_user_join(event: ChatMemberUpdated, bot: Bot):
 
 @dp.message(Command("summarize"))
 async def command_summarize_handler(message: Message) -> None:
-    if message.chat.id == UNDERGROUND_CHAT_ID:
+    if is_underground_chat(message):
         text_to_summarize = await tools.context_to_text()
 
         summary = await tools.summarize(text_to_summarize)
@@ -73,7 +77,7 @@ async def command_summarize_handler(message: Message) -> None:
 async def command_dialog_handler(message: Message) -> None:
     global dialog_mode
 
-    if message.chat.id == UNDERGROUND_CHAT_ID and DIALOG_MODE_ON:
+    if is_underground_chat(message) and DIALOG_MODE_ON:
         dialog_mode = not dialog_mode
 
         await message.reply('Ура, теперь я полноценный участник беседы!' if dialog_mode else 'Всем пока!')
@@ -88,7 +92,7 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
                  and REPLY_ON_REPLY)
 
     if message.chat.type == 'group' or message.chat.type == 'supergroup':
-        if message.chat.id == UNDERGROUND_CHAT_ID:
+        if is_underground_chat(message):
             await tools.update_underground_context(message.text, name=message.from_user.first_name)
 
         if await tools.mentioned(message.text) or is_answer:
@@ -98,14 +102,9 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
                                                 dialog_mode)
 
             await message.reply(reply)
-            await tools.update_underground_context(reply, "Артем Макаров")
 
-        if "&&" in message.text and await is_admin(message):
-            keywords = message.text.replace("&& ", "").replace("&&", "")
-            answer = message.reply_to_message.text
-            await tools.add_new_question(keywords, answer)
-            await tools.refresh()
-            await message.reply("Добавлено!")
+            if is_underground_chat(message):
+                await tools.update_underground_context(reply, "Артем Макаров")
 
         if message.text == "!а" or message.text == "!a":
             question = message.reply_to_message.text
@@ -114,7 +113,17 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
             reply = await tools.formatted_reply(question, author=author)
 
             await message.reply_to_message.reply(reply)
-            await tools.update_underground_context(reply, "Артем Макаров")
+
+            if is_underground_chat(message):
+                await tools.update_underground_context(reply, "Артем Макаров")
+
+        if "&&" in message.text and await is_admin(message):
+            keywords = message.text.replace("&& ", "").replace("&&", "")
+            answer = message.reply_to_message.text
+            await tools.add_new_question(keywords, answer)
+            await tools.refresh()
+            await message.reply("Добавлено!")
+
     elif message.chat.type == "private":
         reply = await tools.formatted_reply(message.text)
 
@@ -147,9 +156,7 @@ async def idle_handler(state: FSMContext) -> None:
 
 @dp.error(TelegramNetworkError)
 async def on_network_error(error: TelegramNetworkError) -> None:
-    # await error.message.reply("Произошла ошибка. Попробуйте еще раз.") # i think it is not work
-
-    print(error.message)
+    logging.error(error.message)
 
 
 async def main() -> None:
