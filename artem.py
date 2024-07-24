@@ -24,20 +24,16 @@ async def is_admin(message: Message) -> bool:
     return message.from_user.username in ADMINS
 
 
-def get_reply_history(message: Message, length: int = 25) -> list[str]:
-    count = 0
-    history = []
+def get_reply(message: Message, quote: bool = False) -> str:
+    reply = message.reply_to_message
 
-    current_message = message.reply_to_message
+    if reply is None or not REPLY_CONTEXT:
+        return None, None
 
-    while current_message is not None and count < length:
-        history.append(f'{current_message.from_user.first_name}: {current_message.text}')
+    text = reply.text if not quote else reply.quote.text
+    name = reply.from_user.first_name if not reply.from_user.is_bot else 'Артём Макаров'
 
-        current_message = current_message.reply_to_message
-
-        count += 1
-
-    return history[::-1]
+    return text, name
 
 
 # aiogram event handlers
@@ -89,16 +85,16 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
                  and message.reply_to_message.from_user.is_bot
                  and REPLY_ON_REPLY)
 
-    if (message.chat.type == 'group' or message.chat.type == 'supergroup') \
-            and message.chat.id == UNDERGROUND_CHAT_ID:
-
-        await tools.update_underground_context(message.text, name=message.from_user.first_name)
+    if message.chat.type == 'group' or message.chat.type == 'supergroup':
+        if message.chat.id == UNDERGROUND_CHAT_ID:
+            await tools.update_underground_context(message.text, name=message.from_user.first_name)
 
         if await tools.mentioned(message.text) or is_answer:
             reply = await tools.formatted_reply(message.text,
-                                                get_reply_history(message) if REPLIES_CONTEXT else [],
                                                 message.from_user.first_name,
+                                                *get_reply(message),
                                                 dialog_mode)
+
             await message.reply(reply)
             await tools.update_underground_context(reply, "Артем Макаров")
 
@@ -112,17 +108,15 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
         if message.text == "!а" or message.text == "!a":
             question = message.reply_to_message.text
             author = message.reply_to_message.from_user.first_name
-            quote = message.reply_to_message.quote.text
 
-            reply = await tools.formatted_reply(question, replies=[quote], author=author)
+            reply = await tools.formatted_reply(question, author=author)
 
             await message.reply_to_message.reply(reply)
             await tools.update_underground_context(reply, "Артем Макаров")
-    else:
+    elif message.chat.type == "private":
         reply = await tools.formatted_reply(message.text)
 
         await message.reply(reply)
-        # await tools.update_underground_context(reply, "Артем Макаров")
         await state.update_data({"text_state":message.text})
 
 

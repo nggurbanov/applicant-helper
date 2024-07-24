@@ -1,4 +1,4 @@
-from config import HISTORY_PROMPT, REPLIES_PROMPT, MESSAGE_PROMPT
+from config import HISTORY_PROMPT, REPLY_PROMPT, MESSAGE_PROMPT
 
 
 def prompt_render(promt, **kwargs) -> str:
@@ -12,8 +12,8 @@ def message_history_prompt(history: str) -> str:
     return prompt_render(HISTORY_PROMPT, history=history)
 
 
-def replies_prompt(text: str) -> str:
-    return prompt_render(REPLIES_PROMPT, replies=text)
+def reply_prompt(text: str, author: str = 'user') -> str:
+    return prompt_render(REPLY_PROMPT, reply=text, author=author)
 
 
 def message_prompt(text: str, author: str = 'user') -> str:

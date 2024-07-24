@@ -11,9 +11,8 @@ from google.oauth2.service_account import Credentials
 
 # flags
 DIALOG_MODE_ON = False
-REPLIES_CONTEXT = True
+REPLY_CONTEXT = True
 REPLY_ON_REPLY = True
-
 
 load_dotenv()
 
@@ -21,7 +20,6 @@ DEEPINFRA_API_KEY = os.getenv("DEEPINFRA_API_KEY")  # optional
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 OPENAI = True if OPENAI_API_KEY else False
-
 
 # optional, for open-source model use with Deepinfra
 SEARCH_MODEL = os.getenv("SEARCH_MODEL") if not OPENAI else 'gpt-4o-mini'
@@ -53,8 +51,8 @@ with open("./prompts/summarize.txt", encoding='utf-8-sig') as file:
 with open("./prompts/history.txt", encoding='utf-8-sig') as file:
     HISTORY_PROMPT = file.read()
 
-with open("prompts/replies.txt", encoding='utf-8-sig') as file:
-    REPLIES_PROMPT = file.read()
+with open("prompts/reply.txt", encoding='utf-8-sig') as file:
+    REPLY_PROMPT = file.read()
 
 with open("./prompts/message.txt", encoding='utf-8-sig') as file:
     MESSAGE_PROMPT = file.read()
