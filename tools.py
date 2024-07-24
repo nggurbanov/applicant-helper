@@ -77,7 +77,8 @@ async def reply(text: str, replies: list = None, author='user', dialog_mode: boo
     number = int(await find_question(text))
 
     if number == 0:
-        response = await generate_short(text, replies, author) if not dialog_mode else await generate_dialog(text)
+        response = await generate_short(text, replies, author) if not dialog_mode \
+            else await generate_dialog(text, author)
     else:
         response = find_answer(number)
 
