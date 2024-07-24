@@ -14,6 +14,8 @@ from aiogram.utils.formatting import Text, ExpandableBlockQuote, Bold
 from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramNetworkError
 
+from keyboard import get_keyboard
+
 # bot global vars
 dialog_mode = False
 
@@ -116,7 +118,7 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
     elif message.chat.type == "private":
         reply = await tools.formatted_reply(message.text)
 
-        await message.reply(reply)
+        await message.reply(reply, reply_markup=get_keyboard())
         await state.update_data({"text_state":message.text})
 
 
