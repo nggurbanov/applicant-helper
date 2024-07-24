@@ -1,7 +1,7 @@
 import emoji_remover
 
 from config import *
-from promt_generator import message_history_promt, replies_promt, message_promt
+from prompt_generator import message_history_prompt, replies_prompt, message_prompt
 
 underground_chat_context = []
 
@@ -10,11 +10,12 @@ async def add_new_question(question: str, answer: str) -> None:
     worksheet.append_row([question, answer], value_input_option="RAW")
 
 
-async def generate_short(message: str, replies: list, author: str = 'user') -> str:
+async def generate_short(message: str, replies: list = None, author: str = 'user') -> str:
     messages = [{"role":"system", "content":NON_FOUND_PROMPT},
-                {"role":"system", "content":replies_promt('\n'.join(replies) if replies is not None and
-                                                                                len(replies) > 0 else 'nothing')},
-                {"role":"user", "content":message_promt(message, author)}]
+                {"role":"user", "content":message_prompt(message, author)}]
+
+    if replies is not None and len(replies) > 0:
+        messages.insert(1, {"role":"system", "content":replies_prompt('\n'.join(replies))})
 
     chat_response = ai_client.chat.completions.create(
         model=ANSWER_MODEL,
@@ -28,8 +29,8 @@ async def generate_short(message: str, replies: list, author: str = 'user') -> s
 
 async def generate_dialog(message: str, author: str = 'user') -> str:
     messages = [{"role":"system", "content":NON_FOUND_PROMPT},
-                {"role":"system", "content":message_history_promt(context_to_text())},
-                {"role":"user", "content":message_promt(message, author)}]
+                {"role":"system", "content":message_history_prompt(context_to_text())},
+                {"role":"user", "content":message_prompt(message, author)}]
 
     chat_response = ai_client.chat.completions.create(
         model=ANSWER_MODEL,

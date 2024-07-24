@@ -9,15 +9,6 @@ from dotenv import load_dotenv
 import gspread
 from google.oauth2.service_account import Credentials
 
-load_dotenv()
-
-DEEPINFRA_API_KEY = os.getenv("DEEPINFRA_API_KEY")  # optional
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-# optional, for open-source model use with Deepinfra
-SEARCH_MODEL = os.getenv("SEARCH_MODEL")
-ANSWER_MODEL = os.getenv("ANSWER_MODEL")
-
 # flags
 DIALOG_MODE_ON = False
 REPLIES_CONTEXT = True
@@ -26,6 +17,15 @@ REPLY_ON_REPLY = True
 CHECK_CHAT_ID = False
 
 OPENAI = False
+
+load_dotenv()
+
+DEEPINFRA_API_KEY = os.getenv("DEEPINFRA_API_KEY")  # optional
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# optional, for open-source model use with Deepinfra
+SEARCH_MODEL = os.getenv("SEARCH_MODEL") if not OPENAI else 'gpt-4o-mini'
+ANSWER_MODEL = os.getenv("ANSWER_MODEL") if not OPENAI else 'gpt-4o-mini'
 
 # load some config data
 with open("./underground_info/group_chat.json", encoding='utf-8-sig') as file:

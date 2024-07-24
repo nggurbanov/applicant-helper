@@ -86,16 +86,14 @@ async def command_dialog_handler(message: Message) -> None:
 async def chat_message_handler(message: Message, state: FSMContext) -> None:
     global dialog_mode
 
-    if message.chat.id != UNDERGROUND_CHAT_ID and CHECK_CHAT_ID:
-        return
-
-    await tools.update_underground_context(message.text, name=message.from_user.first_name)
-
     is_answer = (message.reply_to_message is not None
                  and message.reply_to_message.from_user.is_bot
                  and REPLY_ON_REPLY)
 
-    if message.chat.type == 'group' or message.chat.type == 'supergroup':
+    if (message.chat.type == 'group' or message.chat.type == 'supergroup') \
+            and message.chat.id != UNDERGROUND_CHAT_ID \
+            and CHECK_CHAT_ID:
+
         if await tools.mentioned(message.text) or is_answer:
             reply = await tools.formatted_reply(message.text,
                                                 get_reply_history(message) if REPLIES_CONTEXT else [],
@@ -111,7 +109,7 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
             await tools.refresh()
             await message.reply("Добавлено!")
 
-        if message.text == "!а" and message.text == "!a":
+        if message.text == "!а" or message.text == "!a":
             question = message.reply_to_message.text
             author = message.reply_to_message.from_user.first_name
             quote = message.reply_to_message.quote.text
@@ -120,11 +118,14 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
 
             await message.reply_to_message.reply(reply)
             await tools.update_underground_context(reply, "Артем Макаров")
+
+        await tools.update_underground_context(message.text, name=message.from_user.first_name)
+
     else:
         reply = await tools.formatted_reply(message.text)
 
         await message.reply(reply)
-        await tools.update_underground_context(reply, "Артем Макаров")
+        # await tools.update_underground_context(reply, "Артем Макаров")
         await state.update_data({"text":message.text})
 
 
