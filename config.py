@@ -14,12 +14,14 @@ DIALOG_MODE_ON = False
 REPLIES_CONTEXT = True
 REPLY_ON_REPLY = True
 
-OPENAI = False
 
 load_dotenv()
 
 DEEPINFRA_API_KEY = os.getenv("DEEPINFRA_API_KEY")  # optional
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+OPENAI = True if OPENAI_API_KEY else False
+
 
 # optional, for open-source model use with Deepinfra
 SEARCH_MODEL = os.getenv("SEARCH_MODEL") if not OPENAI else 'gpt-4o-mini'

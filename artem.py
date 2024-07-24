@@ -118,7 +118,7 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
 
             await message.reply_to_message.reply(reply)
             await tools.update_underground_context(reply, "Артем Макаров")
-    elif message.chat.type == 'private':
+    else:
         reply = await tools.formatted_reply(message.text)
 
         await message.reply(reply)
