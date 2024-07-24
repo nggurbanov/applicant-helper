@@ -27,7 +27,7 @@ async def is_admin(message: Message) -> bool:
 
 
 async def is_underground_chat(message: Message):
-    return is_underground_chat(message)
+    return message.chat.id == UNDERGROUND_CHAT_ID
 
 
 def get_reply(message: Message, quote: bool = False) -> str:
