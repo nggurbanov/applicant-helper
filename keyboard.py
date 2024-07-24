@@ -1,5 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+
 def get_keyboard() -> InlineKeyboardMarkup:
     buttons = [
         [
@@ -9,5 +10,7 @@ def get_keyboard() -> InlineKeyboardMarkup:
             InlineKeyboardButton(text="Анонимно спросить кураторов.", callback_data="ASK"),
         ]
     ]
+
     keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+
     return keyboard

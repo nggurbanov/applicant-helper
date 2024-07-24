@@ -4,3 +4,4 @@ helper
 openaitest.py
 .DS_Store
 gspread_handler/*
+.idea
