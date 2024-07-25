@@ -80,6 +80,7 @@ async def reply(text: str, author: str = 'user', reply_text: str = None, reply_a
     if number == 0:
         response = await generate_short(text, author, reply_text, reply_author) if not dialog_mode \
             else await generate_dialog(text, author)
+        response = response.lower()
     else:
         response = find_answer(number)
 
@@ -118,7 +119,7 @@ async def update_underground_context(message: str, name: str = None) -> None:
 async def formatted_reply(text: str, author: str = 'user', reply_text: str = None, reply_author: str = None,
                           dialog_mode: bool = False) -> object:
     reply_text = await reply(text, author, reply_text, reply_author, dialog_mode)
-    formatted_response = await emoji_remover.rm(reply_text.lower())
+    formatted_response = await emoji_remover.rm(reply_text)
 
     return formatted_response
 
