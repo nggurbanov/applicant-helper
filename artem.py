@@ -65,9 +65,10 @@ async def on_user_join(event: ChatMemberUpdated, bot: Bot):
 
 @dp.message(Command("summarize"))
 async def command_summarize_handler(message: Message, command: CommandObject) -> None:
-    if is_underground_chat(message):
+    if await is_underground_chat(message):
         if command.args:
             text_to_summarize = await tools.context_to_text(int(command.args))
+            print(text_to_summarize)
         else:
             text_to_summarize = await tools.context_to_text()
 
@@ -80,7 +81,7 @@ async def command_summarize_handler(message: Message, command: CommandObject) ->
 async def command_dialog_handler(message: Message) -> None:
     global dialog_mode
 
-    if is_underground_chat(message) and DIALOG_MODE_ON:
+    if await is_underground_chat(message) and DIALOG_MODE_ON:
         dialog_mode = not dialog_mode
 
         await message.reply('Ура, теперь я полноценный участник беседы!' if dialog_mode else 'Всем пока!')
@@ -98,7 +99,7 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
                  and REPLY_ON_REPLY)
 
     if message.chat.type == 'group' or message.chat.type == 'supergroup':
-        if is_underground_chat(message):
+        if await is_underground_chat(message):
             await tools.update_underground_context(message.text, name=message.from_user.first_name)
 
         if await tools.mentioned(message.text) or is_answer:
@@ -109,7 +110,7 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
 
             await message.reply(reply)
 
-            if is_underground_chat(message):
+            if await is_underground_chat(message):
                 await tools.update_underground_context(reply, "Артем Макаров")
 
         if message.text == "!а" or message.text == "!a":
@@ -120,7 +121,7 @@ async def chat_message_handler(message: Message, state: FSMContext) -> None:
 
             await message.reply_to_message.reply(reply)
 
-            if is_underground_chat(message):
+            if await is_underground_chat(message):
                 await tools.update_underground_context(reply, "Артем Макаров")
 
         if "&&" in message.text and await is_admin(message):

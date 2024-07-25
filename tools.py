@@ -124,6 +124,6 @@ async def formatted_reply(text: str, author: str = 'user', reply_text: str = Non
 
 
 async def context_to_text(length: int = 100) -> str:
-    text_to_summarize = "\n".join(underground_chat_context[:length])
+    text_to_summarize = "\n".join(underground_chat_context[-length:])
 
     return text_to_summarize
