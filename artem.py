@@ -7,7 +7,7 @@ import sys
 
 from aiogram import Bot, F
 from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart, Command, IS_MEMBER, IS_NOT_MEMBER, ChatMemberUpdatedFilter
+from aiogram.filters import CommandStart, Command, CommandObject, IS_MEMBER, IS_NOT_MEMBER, ChatMemberUpdatedFilter
 from aiogram.types import Message, ChatMemberUpdated, CallbackQuery, LinkPreviewOptions
 from aiogram.client.default import DefaultBotProperties
 from aiogram.utils.formatting import Text, ExpandableBlockQuote, Bold
@@ -64,9 +64,12 @@ async def on_user_join(event: ChatMemberUpdated, bot: Bot):
 
 
 @dp.message(Command("summarize"))
-async def command_summarize_handler(message: Message) -> None:
+async def command_summarize_handler(message: Message, command: CommandObject) -> None:
     if is_underground_chat(message):
-        text_to_summarize = await tools.context_to_text()
+        if command.args:
+            text_to_summarize = await tools.context_to_text(int(command.args))
+        else:
+            text_to_summarize = await tools.context_to_text()
 
         summary = await tools.summarize(text_to_summarize)
 
@@ -86,7 +89,10 @@ async def command_dialog_handler(message: Message) -> None:
 @dp.message()
 async def chat_message_handler(message: Message, state: FSMContext) -> None:
     global dialog_mode
-
+    
+    if not message.text:
+        return
+    
     is_answer = (message.reply_to_message is not None
                  and message.reply_to_message.from_user.is_bot
                  and REPLY_ON_REPLY)

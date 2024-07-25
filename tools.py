@@ -111,7 +111,7 @@ async def update_underground_context(message: str, name: str = None) -> None:
 
     underground_chat_context.append(name + ": " + message)
 
-    if len(underground_chat_context) > 50:
+    if len(underground_chat_context) > 500:
         del underground_chat_context[0]
 
 
@@ -123,7 +123,7 @@ async def formatted_reply(text: str, author: str = 'user', reply_text: str = Non
     return formatted_response
 
 
-async def context_to_text(length: int = 20) -> str:
-    text_to_summarize = "\n".join(underground_chat_context[:length + 1])
+async def context_to_text(length: int = 100) -> str:
+    text_to_summarize = "\n".join(underground_chat_context[:length])
 
     return text_to_summarize
