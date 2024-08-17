@@ -144,14 +144,18 @@ async def handle_answer_quality(callback: CallbackQuery, bot: Bot, state: FSMCon
 
     text = data["text_state"]
 
-    message = Text(
-        Bold("Кураторы!\n\nАноним задает вопрос:\n"),
-        ExpandableBlockQuote(text))
+    if tools.is_appropriate(text):
+        message = Text(
+            Bold("Кураторы!\n\nАноним задает вопрос:\n"),
+            ExpandableBlockQuote(text))
 
-    await bot.send_message(UNDERGROUND_CHAT_ID, **message.as_kwargs())
-    await callback.message.edit_text(
-        f"Твой вопрос отправлен!\n Жди ответа в чате по [ссылке]({UNDERGROUND_CHAT_INVITE}).",
-        parse_mode=ParseMode.MARKDOWN, link_preview_options=LinkPreviewOptions(is_disabled=True))
+        await bot.send_message(UNDERGROUND_CHAT_ID, **message.as_kwargs())
+        await callback.message.edit_text(
+            "Твой вопрос отправлен!\n Жди ответа в чате.")
+    else:
+        await callback.message.edit_text(
+            "Ошибка! Твое сообщение, похоже, содержит что-то нехорошее." + \
+            "Советую подумать о своих жизненных взглядах.")
 
     await state.clear()
 
@@ -168,6 +172,7 @@ async def on_network_error(error: TelegramNetworkError) -> None:
 
 async def main() -> None:
     bot = Bot(TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    await bot.send_message(BOSS_ID, "Я родился!")
     await tools.refresh()
     await dp.start_polling(bot, polling_timeout=100)
 

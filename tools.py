@@ -128,3 +128,18 @@ async def context_to_text(length: int = 100) -> str:
     text_to_summarize = "\n".join(underground_chat_context[-length:])
 
     return text_to_summarize
+
+async def is_appropriate(text: str) -> int:
+    messages = [{"role":"system", "content":FILTER_PROMPT}, {"role":"user", "content":text}]
+
+    chat_response = ai_client.chat.completions.create(
+        model=ANSWER_MODEL,
+        messages=messages,
+        temperature=0.5
+    )
+    try:
+        result = int(chat_response.choices[0].message.content)
+    except TypeError:
+        result = 0
+
+    return result

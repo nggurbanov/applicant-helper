@@ -57,6 +57,9 @@ with open("prompts/reply.txt", encoding='utf-8-sig') as file:
 with open("./prompts/message.txt", encoding='utf-8-sig') as file:
     MESSAGE_PROMPT = file.read()
 
+with open("./prompts/filter.txt", encoding='utf-8-sig') as file:
+    FILTER_PROMPT = file.read()
+
 # some google worksheet
 scope = ['https://www.googleapis.com/auth/spreadsheets']
 credentials = Credentials.from_service_account_file('./gspread_handler/key.json', scopes=scope)
@@ -83,3 +86,5 @@ dp = Dispatcher()
 dp.callback_query.middleware(CallbackAnswerMiddleware(pre=True))
 
 text_state = State()
+
+BOSS_ID=int(os.getenv("BOSS_ID"))

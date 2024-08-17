@@ -5,3 +5,6 @@ openaitest.py
 .DS_Store
 gspread_handler/*
 .idea
+.dockerignore
+compose.yaml
+Dockerfile
