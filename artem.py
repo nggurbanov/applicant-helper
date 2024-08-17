@@ -144,7 +144,7 @@ async def handle_answer_quality(callback: CallbackQuery, bot: Bot, state: FSMCon
 
     text = data["text_state"]
 
-    if tools.is_appropriate(text):
+    if await tools.is_appropriate(text):
         message = Text(
             Bold("Кураторы!\n\nАноним задает вопрос:\n"),
             ExpandableBlockQuote(text))
