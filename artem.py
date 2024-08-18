@@ -60,7 +60,8 @@ async def on_user_join(event: ChatMemberUpdated, bot: Bot):
     await asyncio.sleep(1)
     await bot.send_chat_action(event.chat.id, action="typing")
     await asyncio.sleep(4)
-    await event.answer("Привет! Ты новенький, представься)")
+    username = event.from_user.username
+    await event.answer(f"Привет, {username if username else event.from_user.first_name}!\nТы новенький, представься)")
 
 
 @dp.message(Command("summarize"))
@@ -166,9 +167,9 @@ async def idle_handler(state: FSMContext) -> None:
     await state.clear()
 
 
-@dp.error(TelegramNetworkError)
-async def on_network_error(error: TelegramNetworkError) -> None:
-    logging.error(error.message)
+# @dp.error(TelegramNetworkError)
+# async def on_network_error(error: TelegramNetworkError) -> None:
+#     logging.error(error.message)
 
 
 async def main() -> None:
