@@ -29,7 +29,7 @@ async def generate_short(message: str, author: str = 'user', reply_text: str = N
 
 async def generate_dialog(message: str, author: str = 'user') -> str:
     messages = [{"role":"system", "content":NON_FOUND_PROMPT},
-                {"role":"system", "content":message_history_prompt(context_to_text())},
+                {"role":"user", "content":message_history_prompt(context_to_text())},
                 {"role":"user", "content":message_prompt(message, author)}]
 
     chat_response = ai_client.chat.completions.create(

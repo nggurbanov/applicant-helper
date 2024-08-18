@@ -92,7 +92,7 @@ async def command_dialog_handler(message: Message) -> None:
 async def chat_message_handler(message: Message, state: FSMContext) -> None:
     global dialog_mode
     
-    if not message.text:
+    if not message.content_type == 'text':
         return
     
     is_answer = (message.reply_to_message is not None
@@ -165,11 +165,6 @@ async def handle_answer_quality(callback: CallbackQuery, bot: Bot, state: FSMCon
 @dp.callback_query(F.data == "OK")
 async def idle_handler(state: FSMContext) -> None:
     await state.clear()
-
-
-# @dp.error(TelegramNetworkError)
-# async def on_network_error(error: TelegramNetworkError) -> None:
-#     logging.error(error.message)
 
 
 async def main() -> None:
