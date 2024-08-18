@@ -153,6 +153,7 @@ async def handle_answer_quality(callback: CallbackQuery, bot: Bot, state: FSMCon
         await callback.message.edit_text(
             "Твой вопрос отправлен!\n Жди ответа в чате.")
     else:
+        await bot.send_message(BOSS_ID, "Потенциально нехороший вопрос:\n" + text)
         await callback.message.edit_text(
             "Ошибка! Твое сообщение, похоже, содержит что-то нехорошее.\n" + \
             "Советую подумать о своих жизненных взглядах.")
