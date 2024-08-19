@@ -60,6 +60,12 @@ with open("./prompts/message.txt", encoding='utf-8-sig') as file:
 with open("./prompts/filter.txt", encoding='utf-8-sig') as file:
     FILTER_PROMPT = file.read()
 
+with open("./prompts/stay_active.txt", encoding='utf-8-sig') as file:
+    STAY_ACTIVE_PROMPT = file.read()
+
+with open("./prompts/stay_active_no_context.txt", encoding='utf-8-sig') as file:
+    STAY_ACTIVE_NC_PROMPT = file.read()
+
 # some google worksheet
 scope = ['https://www.googleapis.com/auth/spreadsheets']
 credentials = Credentials.from_service_account_file('./gspread_handler/key.json', scopes=scope)

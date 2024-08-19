@@ -143,3 +143,23 @@ async def is_appropriate(text: str) -> int:
         result = 0
 
     return result
+
+async def support_active(ignored: bool=False) -> str:
+    context = "\n".join(underground_chat_context[-30:])
+    if not ignored:
+        messages = [{"role":"system", "content":STAY_ACTIVE_PROMPT}, {"role":"user", "content":context}]
+    else:
+        messages = [{"role":"user", "content":STAY_ACTIVE_NC_PROMPT}]
+
+    chat_response = ai_client.chat.completions.create(
+        model=ANSWER_MODEL,
+        messages=messages,
+        temperature=0.5
+    )
+    result = chat_response.choices[0].message.content.lower()
+
+    formatted_response = await emoji_remover.rm(result)
+
+    return formatted_response
+
+    return result

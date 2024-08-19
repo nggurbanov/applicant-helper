@@ -12,7 +12,8 @@ from aiogram.types import Message, ChatMemberUpdated, CallbackQuery, LinkPreview
 from aiogram.client.default import DefaultBotProperties
 from aiogram.utils.formatting import Text, ExpandableBlockQuote, Bold
 from aiogram.fsm.context import FSMContext
-from aiogram.exceptions import TelegramNetworkError
+
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from keyboard import get_keyboard
 
@@ -20,7 +21,7 @@ from keyboard import get_keyboard
 dialog_mode = False
 
 
-# aiogram tools
+# local tools
 
 async def is_admin(message: Message) -> bool:
     return message.from_user.username in ADMINS
@@ -40,6 +41,16 @@ def get_reply(message: Message, quote: bool = False) -> str:
     name = reply.from_user.first_name if not reply.from_user.is_bot else 'Артём Макаров'
 
     return text, name
+
+async def keep_active(bot: Bot) -> None:
+    global silent
+    silent += 1
+    if silent == 30:
+        await bot.send_chat_action(UNDERGROUND_CHAT_ID, action="typing")
+        await bot.send_message(UNDERGROUND_CHAT_ID, await tools.support_active())
+    elif silent == 60:
+        await bot.send_chat_action(UNDERGROUND_CHAT_ID, action="typing")
+        await bot.send_message(UNDERGROUND_CHAT_ID, await tools.support_active(ignored=True))
 
 
 # aiogram event handlers
@@ -90,14 +101,17 @@ async def command_dialog_handler(message: Message) -> None:
 
 @dp.message()
 async def chat_message_handler(message: Message, state: FSMContext) -> None:
-    global dialog_mode
+    global dialog_mode, silent
+
+    silent = 0
     
     if not message.content_type == 'text':
         return
     
     is_answer = (message.reply_to_message is not None
                  and message.reply_to_message.from_user.is_bot
-                 and REPLY_ON_REPLY)
+                 and REPLY_ON_REPLY
+                 and "Аноним задает вопрос:" not in message.reply_to_message.text)
 
     if message.chat.type == 'group' or message.chat.type == 'supergroup':
         if await is_underground_chat(message):
@@ -169,6 +183,9 @@ async def idle_handler(state: FSMContext) -> None:
 
 async def main() -> None:
     bot = Bot(TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(keep_active, "interval", minutes=1, args=(bot,))
+    scheduler.start()
     await bot.send_message(BOSS_ID, "Я родился!")
     await tools.refresh()
     await dp.start_polling(bot, polling_timeout=100)
