@@ -72,7 +72,7 @@ async def on_user_join(event: ChatMemberUpdated, bot: Bot):
     await bot.send_chat_action(event.chat.id, action="typing")
     await asyncio.sleep(4)
     username = event.from_user.username
-    await event.answer(f"Привет, {"@" + username if username else event.from_user.first_name}!\nТы новенький, представься)")
+    await event.answer(f"Привет, {'@' + username if username else event.from_user.first_name}!\nТы новенький, представься)")
 
 
 @dp.message(Command("summarize"))
